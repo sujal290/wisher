@@ -12,7 +12,7 @@ import "swiper/css/pagination"
 import "swiper/css/navigation"
 import Image from "next/image"
 
-export default function PhotoScreen({ onNext }) {
+export default function PhotoScreen({ images, onNext }) {
     const [showButton, setShowButton] = useState(false)
     const swiperRef = useRef(null)
 
@@ -139,3 +139,5 @@ export default function PhotoScreen({ onNext }) {
         </motion.div>
     )
 }
+
+

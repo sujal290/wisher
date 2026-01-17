@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import { Heart } from "lucide-react"
 import confetti from "canvas-confetti"
 
@@ -30,9 +30,7 @@ export default function FinalScreen({ content, onNext }) {
       if (i < proposalMessage.length) {
         setDisplayedText(proposalMessage.slice(0, i + 1))
         i++
-        if (messageRef.current) {
-          messageRef.current.scrollTop = messageRef.current.scrollHeight
-        }
+        messageRef.current?.scrollTo(0, messageRef.current.scrollHeight)
       } else {
         setTypingComplete(true)
         clearInterval(interval)
@@ -45,22 +43,24 @@ export default function FinalScreen({ content, onNext }) {
   return (
     <motion.div
       className="min-h-screen flex flex-col items-center justify-center px-4"
-      initial={{ opacity: 0, scale: 0.9 }}
+      initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 1 }}
     >
       <div className="max-w-xl w-full text-center">
         {!cardOpen ? (
-          <div
+          <motion.div
             className="cursor-pointer bg-pink-950/20 border border-pink-500/30 rounded-3xl p-8"
+            whileHover={{ scale: 1.05 }}
             onClick={() => setCardOpen(true)}
           >
             <Heart className="w-12 h-12 text-pink-500 mx-auto mb-4 fill-current" />
             <p className="text-pink-300">Tap to see what’s inside</p>
-          </div>
+          </motion.div>
         ) : (
           <div
             ref={messageRef}
-            className="h-80 overflow-y-auto text-left p-6 bg-white/5 rounded-3xl text-pink-200"
+            className="h-80 overflow-y-auto text-left p-6 bg-white/5 rounded-3xl text-pink-200 whitespace-pre-line"
           >
             {displayedText}
           </div>
@@ -72,9 +72,10 @@ export default function FinalScreen({ content, onNext }) {
               fireConfetti()
               onNext()
             }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             className="mt-10 bg-gradient-to-r from-purple-500 to-pink-500
-                       text-white px-7 py-4 rounded-full text-lg font-semibold
-                       hover:scale-105 transition"
+                       text-white px-8 py-4 rounded-full text-lg font-semibold shadow-xl"
           >
             🤍 Continue 🤍
           </motion.button>

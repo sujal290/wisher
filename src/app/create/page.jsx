@@ -1,83 +1,136 @@
-
 // "use client"
 
 // import { useState } from "react"
 // import { useRouter } from "next/navigation"
 // import { supabase } from "@/lib/supabase"
+// // import { uploadFile } from "@/lib/uploadFile"
 
 // export default function CreatePage() {
 //   const router = useRouter()
 //   const [loading, setLoading] = useState(false)
+//   const uploadFile = async (bucket, file, type) => {
+//   const ext = file.name.split(".").pop()
+//   const path = `${crypto.randomUUID()}.${ext}`
+
+//   const { error } = await supabase.storage
+//     .from(bucket)
+//     .upload(path, file, { contentType: type })
+
+//   if (error) throw error
+
+//   return supabase.storage
+//     .from(bucket)
+//     .getPublicUrl(path).data.publicUrl
+// }
+
+
+//   const [songInputs, setSongInputs] = useState([0])
+//   const [imageInputs, setImageInputs] = useState([0])
+
+//   const addSong = () => setSongInputs([...songInputs, Date.now()])
+//   const addImage = () => setImageInputs([...imageInputs, Date.now()])
 
 //   const handleSubmit = async (e) => {
 //     e.preventDefault()
 //     setLoading(true)
 
-//     const form = e.target
+//     try {
+//       const form = e.target
 
-// const songFile = form.song.files[0]
+//       const to_name = form.to_name.value
+//       const from_name = form.from_name.value
+//       const message = form.message.value
 
-// // ✅ SAFE filename
-// const songPath = `songs/${crypto.randomUUID()}.mp3`
+//       /* 🎵 UPLOAD SONGS */
+//       const songs = []
+//       for (let i = 0; i < songInputs.length; i++) {
+//         const file = form[`song_${i}`]?.files[0]
+//         if (!file) continue
 
-// const { error: songError } = await supabase
-//   .storage
-//   .from("songs")
-//   .upload(songPath, songFile, {
-//     contentType: "audio/mpeg"
-//   })
-
-// if (songError) {
-//   console.error(songError)
-//   alert("Song upload failed")
-//   return
-// }
-
-// const { data: songPublic } = supabase
-//   .storage
-//   .from("songs")
-//   .getPublicUrl(songPath)
-
-// const songUrl = songPublic.publicUrl
-
-
-//     /* ---------- UPLOAD IMAGES ---------- */
-//     const imageUrls = []
-
-//     for (const file of form.images.files) {
-//       const imagePath = `img-${Date.now()}-${file.name}`
-
-//       const { error } = await supabase.storage
-//         .from("images")
-//         .upload(imagePath, file)
-
-//       if (!error) {
-//         const url =
-//           supabase.storage.from("images").getPublicUrl(imagePath).data.publicUrl
-//         imageUrls.push(url)
+//         const url = await uploadFile("songs", file, "audio/mpeg")
+//         songs.push(url)
 //       }
-//     }
 
-//     /* ---------- INSERT ROW ---------- */
-//     const { data, error } = await supabase
-//         .from("wishes")
-//         .insert({
-//         to_name,
-//         from_name,
-//         message,
-//         song: songUrl,
-//         images: imageUrls
-//         })
-//         .select()
-//         .single()
+//       const bg_music = await uploadFile(
+//   "songs",
+//   form.bg_music.files[0],
+//   "audio/mpeg"
+// )
 
-//         console.log("INSERT DATA 👉", data)
-//         console.log("INSERT ERROR 👉", error)
+// const final_song = await uploadFile(
+//   "songs",
+//   form.final_song.files[0],
+//   "audio/mpeg"
+// )
 
-//         if (error) {
-//         alert(error.message)
-//         return
+// const cover_pdf = await uploadFile(
+//   "pdfs",
+//   form.cover_pdf.files[0],
+//   "application/pdf"
+// )
+
+// const message_pdf = await uploadFile(
+//   "pdfs",
+//   form.message_pdf.files[0],
+//   "application/pdf"
+// )
+
+// const floating_pdf = form.floating_pdf.files[0]
+//   ? await uploadFile(
+//       "pdfs",
+//       form.floating_pdf.files[0],
+//       "application/pdf"
+//     )
+//   : null
+
+// const photos = []
+// for (const file of form.photos.files) {
+//   photos.push(
+//     await uploadFile("images", file, file.type)
+//   )
 // }
+
+    
+      
+
+//       /* 🖼 UPLOAD IMAGES */
+//       const images = []
+//       for (let i = 0; i < imageInputs.length; i++) {
+//         const file = form[`image_${i}`]?.files[0]
+//         if (!file) continue
+
+//         const url = await uploadFile("images", file, file.type)
+//         images.push(url)
+//       }
+
+//       /* 📦 INSERT DATABASE */
+//       const { data, error } = await supabase
+//   .from("wishes")
+//   .insert({
+//     to_name,
+//     from_name,
+//     message,
+//     bg_music,
+//     final_song,
+//     cover_pdf,
+//     message_pdf,
+//     floating_pdf,
+//     photos
+//   })
+//   .select()
+//   .single()
+
+// if (error) throw error
+
+// router.push(`/view/${data.id}`)
+
+
+//     } catch (err) {
+//       console.error("CREATE ERROR →", err)
+//       alert(err.message || "Something went wrong")
+//     } finally {
+//       setLoading(false)
+//     }
 //   }
 
 //   return (
@@ -86,26 +139,75 @@
 //         onSubmit={handleSubmit}
 //         className="max-w-md w-full space-y-4 bg-black/60 p-6 rounded-2xl"
 //       >
-//         <h1 className="text-white text-xl text-center">Create Birthday Page 🎂</h1>
+//         <h1 className="text-white text-xl text-center">
+//           Create Birthday Page 🎂
+//         </h1>
 
-//         <input name="name" placeholder="Name" className="input" required />
-//         <textarea name="message" placeholder="Message" className="input" required />
+//         <input name="to_name" placeholder="To" className="input" required />
+//         <input name="from_name" placeholder="From" className="input" required />
 
-//         <input type="file" name="song" accept="audio/mpeg" required />
-//         <input type="file" name="images" accept="image/*" multiple required />
+//         <textarea
+//           name="message"
+//           placeholder="Message"
+//           className="input"
+//           rows={4}
+//           required
+//         />
 
-//         <button className="w-full bg-pink-500 py-3 rounded-xl text-white">
+//         {/* 🎵 SONG INPUTS */}
+//         <div>
+//           <label className="text-white block mb-2">Songs (MP3)</label>
+//           {songInputs.map((_, i) => (
+//             <input
+//               key={i}
+//               type="file"
+//               name={`song_${i}`}
+//               accept="audio/mpeg"
+//               className="mb-2"
+//               required={i === 0}
+//             />
+//           ))}
+//           <button
+//             type="button"
+//             onClick={addSong}
+//             className="text-pink-400 text-sm"
+//           >
+//             + Add another song
+//           </button>
+//         </div>
+
+//         {/* 🖼 IMAGE INPUTS */}
+//         <div>
+//           <label className="text-white block mb-2">Images</label>
+//           {imageInputs.map((_, i) => (
+//             <input
+//               key={i}
+//               type="file"
+//               name={`image_${i}`}
+//               accept="image/*"
+//               className="mb-2"
+//               required={i === 0}
+//             />
+//           ))}
+//           <button
+//             type="button"
+//             onClick={addImage}
+//             className="text-pink-400 text-sm"
+//           >
+//             + Add another image
+//           </button>
+//         </div>
+
+//         <button
+//           disabled={loading}
+//           className="w-full bg-pink-500 py-3 rounded-xl text-white font-semibold"
+//         >
 //           {loading ? "Creating..." : "Create 🎁"}
 //         </button>
 //       </form>
 //     </div>
 //   )
 // }
-
-
-
-
-
 
 "use client"
 
@@ -117,10 +219,20 @@ export default function CreatePage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
-  // 🔒 Safe filename generator
-  const safeFileName = (file) => {
+  /* 🔼 Universal upload helper */
+  const uploadFile = async (bucket, file, type) => {
     const ext = file.name.split(".").pop()
-    return `${crypto.randomUUID()}.${ext}`
+    const path = `${crypto.randomUUID()}.${ext}`
+
+    const { error } = await supabase.storage
+      .from(bucket)
+      .upload(path, file, { contentType: type })
+
+    if (error) throw error
+
+    return supabase.storage
+      .from(bucket)
+      .getPublicUrl(path).data.publicUrl
   }
 
   const handleSubmit = async (e) => {
@@ -133,65 +245,69 @@ export default function CreatePage() {
       const to_name = form.to_name.value
       const from_name = form.from_name.value
       const message = form.message.value
-      const songFile = form.song.files[0]
-      const imageFiles = form.images.files
 
-      /* ---------- UPLOAD SONG ---------- */
-      const songName = safeFileName(songFile)
+      /* 🎵 MUSIC */
+      const bg_music = await uploadFile(
+        "songs",
+        form.bg_music.files[0],
+        "audio/mpeg"
+      )
 
-      const { error: songError } = await supabase.storage
-        .from("songs")
-        .upload(songName, songFile, {
-          contentType: "audio/mpeg"
-        })
+      const final_song = await uploadFile(
+        "songs",
+        form.final_song.files[0],
+        "audio/mpeg"
+      )
 
-      if (songError) throw songError
+      /* 📄 PDFs */
+      const cover_pdf = await uploadFile(
+        "pdfs",
+        form.cover_pdf.files[0],
+        "application/pdf"
+      )
 
-      const { data: songPublic } = supabase.storage
-        .from("songs")
-        .getPublicUrl(songName)
+      const message_pdf = await uploadFile(
+        "pdfs",
+        form.message_pdf.files[0],
+        "application/pdf"
+      )
 
-      const songUrl = songPublic.publicUrl
+      const floating_pdf = form.floating_pdf.files[0]
+        ? await uploadFile(
+            "pdfs",
+            form.floating_pdf.files[0],
+            "application/pdf"
+          )
+        : null
 
-      /* ---------- UPLOAD IMAGES ---------- */
-      const imageUrls = []
-
-      for (const img of imageFiles) {
-        const imgName = safeFileName(img)
-
-        const { error } = await supabase.storage
-          .from("images")
-          .upload(imgName, img)
-
-        if (error) throw error
-
-        const { data } = supabase.storage
-          .from("images")
-          .getPublicUrl(imgName)
-
-        imageUrls.push(data.publicUrl)
+      /* 🖼 PHOTOS */
+      const photos = []
+      for (const file of form.photos.files) {
+        photos.push(await uploadFile("images", file, file.type))
       }
 
-      /* ---------- INSERT DATABASE ---------- */
+      /* 📦 DATABASE */
       const { data, error } = await supabase
         .from("wishes")
         .insert({
           to_name,
           from_name,
           message,
-          song: songUrl,
-          images: imageUrls
+          bg_music,
+          final_song,
+          cover_pdf,
+          message_pdf,
+          floating_pdf,
+          photos,
         })
         .select()
         .single()
 
       if (error) throw error
 
-      // 🚀 Redirect to final birthday page
       router.push(`/view/${data.id}`)
-
     } catch (err) {
-      console.error("CREATE ERROR 👉", err)
+      console.error("CREATE ERROR →", err)
       alert(err.message || "Something went wrong")
     } finally {
       setLoading(false)
@@ -208,42 +324,37 @@ export default function CreatePage() {
           Create Birthday Page 🎂
         </h1>
 
-        <input
-          name="to_name"
-          placeholder="Birthday Person Name"
-          className="input"
-          required
-        />
-
-        <input
-          name="from_name"
-          placeholder="Your Name"
-          className="input"
-          required
-        />
+        <input name="to_name" placeholder="To" className="input" required />
+        <input name="from_name" placeholder="From" className="input" required />
 
         <textarea
           name="message"
-          placeholder="Your Message"
+          placeholder="Message"
           className="input"
           rows={4}
           required
         />
 
-        <input
-          type="file"
-          name="song"
-          accept="audio/mpeg"
-          required
-        />
+        {/* 🎵 MUSIC */}
+        <label className="text-white">Background Music (MP3)</label>
+        <input type="file" name="bg_music" accept="audio/mpeg" required />
 
-        <input
-          type="file"
-          name="images"
-          accept="image/*"
-          multiple
-          required
-        />
+        <label className="text-white">Final Song (MP3)</label>
+        <input type="file" name="final_song" accept="audio/mpeg" required />
+
+        {/* 📄 PDFs */}
+        <label className="text-white">Cover PDF</label>
+        <input type="file" name="cover_pdf" accept="application/pdf" required />
+
+        <label className="text-white">Message PDF</label>
+        <input type="file" name="message_pdf" accept="application/pdf" required />
+
+        <label className="text-white">Floating PDF (optional)</label>
+        <input type="file" name="floating_pdf" accept="application/pdf" />
+
+        {/* 🖼 PHOTOS */}
+        <label className="text-white">Photos</label>
+        <input type="file" name="photos" accept="image/*" multiple required />
 
         <button
           disabled={loading}
