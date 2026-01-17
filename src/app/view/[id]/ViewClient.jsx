@@ -36,3 +36,27 @@ export default function ViewClient({ id }) {
 
   return <ProposalSite content={wish} />
 }
+
+
+// "use client"
+
+// import { useEffect, useState } from "react"
+// import { supabase } from "@/lib/supabase"
+// import ProposalSite from "@/app/proposalsite"
+
+// export default function ViewClient({ id }) {
+//   const [wish, setWish] = useState(null)
+
+//   useEffect(() => {
+//     supabase
+//       .from("wishes")
+//       .select("*")
+//       .eq("id", id)
+//       .single()
+//       .then(({ data }) => setWish(data))
+//   }, [id])
+
+//   if (!wish) return <div className="text-white">Loading...</div>
+
+//   return <ProposalSite content={wish} />
+// }

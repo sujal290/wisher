@@ -6,3 +6,10 @@ export default async function Page(props) {
 
   return <ViewClient id={params.id} />
 }
+
+
+// import ViewClient from "./ViewClient"
+
+// export default async function Page({ params }) {
+//   return <ViewClient id={params.id} />
+// }

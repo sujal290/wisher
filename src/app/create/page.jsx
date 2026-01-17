@@ -1,3 +1,112 @@
+
+// "use client"
+
+// import { useState } from "react"
+// import { useRouter } from "next/navigation"
+// import { supabase } from "@/lib/supabase"
+
+// export default function CreatePage() {
+//   const router = useRouter()
+//   const [loading, setLoading] = useState(false)
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault()
+//     setLoading(true)
+
+//     const form = e.target
+
+// const songFile = form.song.files[0]
+
+// // ✅ SAFE filename
+// const songPath = `songs/${crypto.randomUUID()}.mp3`
+
+// const { error: songError } = await supabase
+//   .storage
+//   .from("songs")
+//   .upload(songPath, songFile, {
+//     contentType: "audio/mpeg"
+//   })
+
+// if (songError) {
+//   console.error(songError)
+//   alert("Song upload failed")
+//   return
+// }
+
+// const { data: songPublic } = supabase
+//   .storage
+//   .from("songs")
+//   .getPublicUrl(songPath)
+
+// const songUrl = songPublic.publicUrl
+
+
+//     /* ---------- UPLOAD IMAGES ---------- */
+//     const imageUrls = []
+
+//     for (const file of form.images.files) {
+//       const imagePath = `img-${Date.now()}-${file.name}`
+
+//       const { error } = await supabase.storage
+//         .from("images")
+//         .upload(imagePath, file)
+
+//       if (!error) {
+//         const url =
+//           supabase.storage.from("images").getPublicUrl(imagePath).data.publicUrl
+//         imageUrls.push(url)
+//       }
+//     }
+
+//     /* ---------- INSERT ROW ---------- */
+//     const { data, error } = await supabase
+//         .from("wishes")
+//         .insert({
+//         to_name,
+//         from_name,
+//         message,
+//         song: songUrl,
+//         images: imageUrls
+//         })
+//         .select()
+//         .single()
+
+//         console.log("INSERT DATA 👉", data)
+//         console.log("INSERT ERROR 👉", error)
+
+//         if (error) {
+//         alert(error.message)
+//         return
+// }
+//   }
+
+//   return (
+//     <div className="min-h-screen flex items-center justify-center px-4">
+//       <form
+//         onSubmit={handleSubmit}
+//         className="max-w-md w-full space-y-4 bg-black/60 p-6 rounded-2xl"
+//       >
+//         <h1 className="text-white text-xl text-center">Create Birthday Page 🎂</h1>
+
+//         <input name="name" placeholder="Name" className="input" required />
+//         <textarea name="message" placeholder="Message" className="input" required />
+
+//         <input type="file" name="song" accept="audio/mpeg" required />
+//         <input type="file" name="images" accept="image/*" multiple required />
+
+//         <button className="w-full bg-pink-500 py-3 rounded-xl text-white">
+//           {loading ? "Creating..." : "Create 🎁"}
+//         </button>
+//       </form>
+//     </div>
+//   )
+// }
+
+
+
+
+
+
 "use client"
 
 import { useState } from "react"
@@ -8,24 +117,10 @@ export default function CreatePage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
-  const uploadFile = async (bucket, file) => {
+  // 🔒 Safe filename generator
+  const safeFileName = (file) => {
     const ext = file.name.split(".").pop()
-    const fileName = `${crypto.randomUUID()}.${ext}`
-
-    const { error } = await supabase.storage
-      .from(bucket)
-      .upload(fileName, file, {
-        cacheControl: "3600",
-        upsert: false,
-      })
-
-    if (error) throw error
-
-    const { data } = supabase.storage
-      .from(bucket)
-      .getPublicUrl(fileName)
-
-    return data.publicUrl
+    return `${crypto.randomUUID()}.${ext}`
   }
 
   const handleSubmit = async (e) => {
@@ -35,56 +130,94 @@ export default function CreatePage() {
     try {
       const form = e.target
 
-      /* 🎵 MP3 FILE (NOT URL) */
-      let songUrl = null
+      const to_name = form.to_name.value
+      const from_name = form.from_name.value
+      const message = form.message.value
       const songFile = form.song.files[0]
-      if (songFile) {
-        songUrl = await uploadFile("songss", songFile)
-      }
+      const imageFiles = form.images.files
 
-      /* 🖼 IMAGES */
+      /* ---------- UPLOAD SONG ---------- */
+      const songName = safeFileName(songFile)
+
+      const { error: songError } = await supabase.storage
+        .from("songs")
+        .upload(songName, songFile, {
+          contentType: "audio/mpeg"
+        })
+
+      if (songError) throw songError
+
+      const { data: songPublic } = supabase.storage
+        .from("songs")
+        .getPublicUrl(songName)
+
+      const songUrl = songPublic.publicUrl
+
+      /* ---------- UPLOAD IMAGES ---------- */
       const imageUrls = []
-      for (const file of form.images.files) {
-        const url = await uploadFile("images", file)
-        imageUrls.push(url)
+
+      for (const img of imageFiles) {
+        const imgName = safeFileName(img)
+
+        const { error } = await supabase.storage
+          .from("images")
+          .upload(imgName, img)
+
+        if (error) throw error
+
+        const { data } = supabase.storage
+          .from("images")
+          .getPublicUrl(imgName)
+
+        imageUrls.push(data.publicUrl)
       }
 
-      /* 📦 SAVE DATA */
+      /* ---------- INSERT DATABASE ---------- */
       const { data, error } = await supabase
         .from("wishes")
         .insert({
-          name: form.name.value,
-          message: form.message.value,
-          song: songUrl,       // ✅ stored URL of uploaded mp3
-          images: imageUrls,
+          to_name,
+          from_name,
+          message,
+          song: songUrl,
+          images: imageUrls
         })
         .select()
         .single()
 
       if (error) throw error
 
+      // 🚀 Redirect to final birthday page
       router.push(`/view/${data.id}`)
-    } catch (err) {
-      console.error(err)
-      alert("Something went wrong. Please try again.")
-    }
 
-    setLoading(false)
+    } catch (err) {
+      console.error("CREATE ERROR 👉", err)
+      alert(err.message || "Something went wrong")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <form
         onSubmit={handleSubmit}
-        className="max-w-md w-full space-y-4 bg-black/40 p-6 rounded-2xl border border-white/10"
+        className="max-w-md w-full space-y-4 bg-black/60 p-6 rounded-2xl"
       >
-        <h1 className="text-2xl text-white font-semibold text-center">
-          Create Birthday Wish 🎂
+        <h1 className="text-white text-xl text-center">
+          Create Birthday Page 🎂
         </h1>
 
         <input
-          name="name"
+          name="to_name"
           placeholder="Birthday Person Name"
+          className="input"
+          required
+        />
+
+        <input
+          name="from_name"
+          placeholder="Your Name"
           className="input"
           required
         />
@@ -92,39 +225,31 @@ export default function CreatePage() {
         <textarea
           name="message"
           placeholder="Your Message"
-          rows="5"
           className="input"
+          rows={4}
           required
         />
 
-        {/* 🎵 MP3 FILE UPLOAD */}
-        <label className="text-white/70 text-sm">
-          Upload Song (MP3 only)
-        </label>
         <input
           type="file"
           name="song"
           accept="audio/mpeg"
-          className="input"
+          required
         />
 
-        {/* 🖼 IMAGE UPLOAD */}
-        <label className="text-white/70 text-sm">
-          Upload Images
-        </label>
         <input
           type="file"
           name="images"
           accept="image/*"
           multiple
-          className="input"
+          required
         />
 
         <button
           disabled={loading}
-          className="w-full py-3 rounded-xl bg-pink-500 text-white font-semibold hover:bg-pink-600 transition"
+          className="w-full bg-pink-500 py-3 rounded-xl text-white font-semibold"
         >
-          {loading ? "Creating..." : "Create Wish 💖"}
+          {loading ? "Creating..." : "Create 🎁"}
         </button>
       </form>
     </div>
