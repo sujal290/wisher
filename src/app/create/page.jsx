@@ -4,57 +4,84 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 
-
-
 export default function CreatePage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
+
+  const uploadFile = async (bucket, file) => {
+    const ext = file.name.split(".").pop()
+    const fileName = `${crypto.randomUUID()}.${ext}`
+
+    const { error } = await supabase.storage
+      .from(bucket)
+      .upload(fileName, file, {
+        cacheControl: "3600",
+        upsert: false,
+      })
+
+    if (error) throw error
+
+    const { data } = supabase.storage
+      .from(bucket)
+      .getPublicUrl(fileName)
+
+    return data.publicUrl
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
-    setError("")
 
-    const form = e.target
+    try {
+      const form = e.target
 
-  const { data, error } = await supabase
-  .from("wishes")
-  .insert({
-    to_name: form.name.value,
-    from_name: "Someone", // or add another input later
-    message: form.message.value,
-    song: form.song.value || null,
-    images: []
-  })
-  .select()
-  .single()
+      /* 🎵 MP3 FILE (NOT URL) */
+      let songUrl = null
+      const songFile = form.song.files[0]
+      if (songFile) {
+        songUrl = await uploadFile("songs", songFile)
+      }
 
+      /* 🖼 IMAGES */
+      const imageUrls = []
+      for (const file of form.images.files) {
+        const url = await uploadFile("images", file)
+        imageUrls.push(url)
+      }
 
-    if (error) {
-      setError("Something went wrong. Please try again.")
-      setLoading(false)
-      return
+      /* 📦 SAVE DATA */
+      const { data, error } = await supabase
+        .from("wishes")
+        .insert({
+          name: form.name.value,
+          message: form.message.value,
+          song: songUrl,       // ✅ stored URL of uploaded mp3
+          images: imageUrls,
+        })
+        .select()
+        .single()
+
+      if (error) throw error
+
+      router.push(`/view/${data.id}`)
+    } catch (err) {
+      console.error(err)
+      alert("Something went wrong. Please try again.")
     }
 
-    // ✅ Redirect to generated page
-    router.push(`/view/${data.id}`)
+    setLoading(false)
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-black via-[#120018] to-black">
+    <div className="min-h-screen flex items-center justify-center px-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-md space-y-5
-                   bg-black/60 backdrop-blur-xl
-                   border border-white/10
-                   rounded-3xl p-6 shadow-2xl"
+        className="max-w-md w-full space-y-4 bg-black/40 p-6 rounded-2xl border border-white/10"
       >
         <h1 className="text-2xl text-white font-semibold text-center">
           Create Birthday Wish 🎂
         </h1>
 
-        {/* Name */}
         <input
           name="name"
           placeholder="Birthday Person Name"
@@ -62,37 +89,40 @@ export default function CreatePage() {
           required
         />
 
-        {/* Message */}
         <textarea
           name="message"
-          placeholder="Write your message..."
-          rows={5}
-          className="input resize-none"
+          placeholder="Your Message"
+          rows="5"
+          className="input"
           required
         />
 
-        {/* Song */}
+        {/* 🎵 MP3 FILE UPLOAD */}
+        <label className="text-white/70 text-sm">
+          Upload Song (MP3 only)
+        </label>
         <input
+          type="file"
           name="song"
-          placeholder="Song URL (optional)"
+          accept="audio/mpeg"
           className="input"
         />
 
-        {/* Error */}
-        {error && (
-          <p className="text-sm text-red-400 text-center">
-            {error}
-          </p>
-        )}
+        {/* 🖼 IMAGE UPLOAD */}
+        <label className="text-white/70 text-sm">
+          Upload Images
+        </label>
+        <input
+          type="file"
+          name="images"
+          accept="image/*"
+          multiple
+          className="input"
+        />
 
-        {/* Submit */}
         <button
           disabled={loading}
-          className="w-full py-3 rounded-xl
-                     bg-gradient-to-r from-pink-500 to-purple-500
-                     text-white font-semibold
-                     hover:scale-[1.02] transition
-                     disabled:opacity-50"
+          className="w-full py-3 rounded-xl bg-pink-500 text-white font-semibold hover:bg-pink-600 transition"
         >
           {loading ? "Creating..." : "Create Wish 💖"}
         </button>

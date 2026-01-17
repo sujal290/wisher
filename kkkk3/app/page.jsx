@@ -13,13 +13,13 @@ import BlanketNightSong from "../components/BlanketNightSong"
 
 
 export default function ProposalSite({content}) {
-    const [currentScreen, setCurrentScreen] = useState("loader")
+  const [currentScreen, setCurrentScreen] = useState("loader")
   const [isLoading, setIsLoading] = useState(true)
   const [fadeBgMusic, setFadeBgMusic] = useState(false)
   const [lightDust, setLightDust] = useState([])
-  const message = content.message
-  const images = content.images
-  const song = content.song
+
+
+
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -198,7 +198,6 @@ export default function ProposalSite({content}) {
 )} */}
     {currentScreen === "final" && (
   <FinalScreen
-    content={content} 
     onNext={() => {
       setFadeBgMusic(true)   // 🔇 fade background music
       nextScreen("song")     // 🎶 go to song screen
@@ -217,7 +216,6 @@ export default function ProposalSite({content}) {
     className="min-h-screen flex items-center justify-center px-4"
   >
    <BlanketNightSong
-      content={content}
       onBack={() => setCurrentScreen("final")}
     />
   </motion.div>
@@ -235,7 +233,7 @@ export default function ProposalSite({content}) {
           delay: 1,
         }}
         className="fixed bottom-4 right-4 text-[13px] text-white/40 pointer-events-none z-50 font-light">
-        @madebyek_
+        @gsg_mks
       </motion.div>
     </div>
   )

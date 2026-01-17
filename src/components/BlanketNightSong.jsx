@@ -3,7 +3,7 @@
 import { motion } from "framer-motion"
 
 export default function BlanketNightSong({ content, onBack }) {
-  const songUrl = content?.song
+  const songUrl = content.song
 
   return (
     <motion.div
