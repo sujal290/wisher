@@ -114,17 +114,22 @@ export default function BalloonsScreen({ onNext }) {
           There's more I want to show you...
         </motion.p>
 
-        <motion.button
-          onClick={onNext}
-          className={`bg-gradient-to-r from-pink-500 via-pink-600 to-red-500 hover:from-pink-600 hover:via-pink-700 hover:to-red-600 text-white px-8 py-4 text-lg font-semibold rounded-full transition-all duration-300 hover:scale-105 shadow-2xl flex items-center justify-center pointer-events-none animate-fadeInButton}`}
-          style={{
-            animation: "fadeInButton 1s ease forwards 3.5s"
-          }}
-        >
-          <Heart className="w-5 h-5 mr-2 fill-current" />
-          Continue
-          <ArrowRight className="w-5 h-5 ml-2" />
-        </motion.button>
+       <motion.button
+  onClick={onNext}
+  className="bg-gradient-to-r from-pink-500 via-pink-600 to-red-500
+             hover:from-pink-600 hover:via-pink-700 hover:to-red-600
+             text-white px-8 py-4 text-lg font-semibold rounded-full
+             transition-all duration-300 hover:scale-105 shadow-2xl
+             flex items-center justify-center"
+  initial={{ opacity: 0, scale: 0.8 }}
+  animate={{ opacity: 1, scale: 1 }}
+  transition={{ delay: 3.5, duration: 0.8 }}
+>
+  <Heart className="w-5 h-5 mr-2 fill-current" />
+  Continue
+  <ArrowRight className="w-5 h-5 ml-2" />
+</motion.button>
+
       </motion.div>
     </motion.div>
   )

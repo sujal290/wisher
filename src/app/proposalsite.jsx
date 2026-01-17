@@ -198,6 +198,7 @@ export default function ProposalSite({content}) {
 )} */}
     {currentScreen === "final" && (
   <FinalScreen
+    content={content} 
     onNext={() => {
       setFadeBgMusic(true)   // 🔇 fade background music
       nextScreen("song")     // 🎶 go to song screen
@@ -216,6 +217,7 @@ export default function ProposalSite({content}) {
     className="min-h-screen flex items-center justify-center px-4"
   >
    <BlanketNightSong
+      content={content}
       onBack={() => setCurrentScreen("final")}
     />
   </motion.div>
