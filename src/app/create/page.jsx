@@ -39,7 +39,7 @@ export default function CreatePage() {
       let songUrl = null
       const songFile = form.song.files[0]
       if (songFile) {
-        songUrl = await uploadFile("songs", songFile)
+        songUrl = await uploadFile("songss", songFile)
       }
 
       /* 🖼 IMAGES */
