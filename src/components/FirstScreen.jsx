@@ -121,9 +121,23 @@ export default function FirstScreen({ onNext, content }) {
           animate={{ scale: 1 }}
           transition={{ delay: 0.5, duration: 0.8 }}
         >
-          <div className="w-36 h-36 mx-auto rounded-full bg-gradient-to-br from-purple-500/20 to-rose-500/20 flex items-center justify-center border-2 border-pink-400/30 pulse-glow">
-            <img src="/gif/cute.gif" alt="cute" />
-          </div>
+          <div className="w-36 h-36 mx-auto rounded-full overflow-hidden 
+                bg-gradient-to-br from-purple-500/20 to-rose-500/20 
+                flex items-center justify-center 
+                border-2 border-pink-400/30 pulse-glow">
+  {content?.cover_image ? (
+    <img
+      src={content.cover_image}
+      alt="Cover"
+      className="w-full h-full object-cover"
+    />
+  ) : (
+    <span className="text-pink-300 text-sm">
+      No Cover Image
+    </span>
+  )}
+</div>
+
         </motion.div>
 
         {/* Heading */}
