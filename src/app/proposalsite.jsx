@@ -16,13 +16,18 @@ export default function ProposalSite({ content }) {
   const [currentScreen, setCurrentScreen] = useState("loader")
   const [fadeBgMusic, setFadeBgMusic] = useState(false)
   const [lightDust, setLightDust] = useState([])
+  const [siteKey, setSiteKey] = useState(0)
+
+  /* 🔁 Always reset scroll on screen change */
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" })
+  }, [currentScreen])
 
   /* ⏳ Loader → First Screen */
   useEffect(() => {
     const timer = setTimeout(() => {
       setCurrentScreen("first")
     }, 3000)
-
     return () => clearTimeout(timer)
   }, [])
 
@@ -40,7 +45,7 @@ export default function ProposalSite({ content }) {
   const nextScreen = (screen) => setCurrentScreen(screen)
 
   return (
-    <div className="aurora-bg emotional-meter min-h-screen relative overflow-hidden">
+    <div key={siteKey} className="aurora-bg emotional-meter min-h-screen relative overflow-hidden">
 
       {/* 🎵 Background Music */}
       <BackgroundMusic
@@ -48,7 +53,7 @@ export default function ProposalSite({ content }) {
         fadeOut={fadeBgMusic}
       />
 
-      {/* ✨ Light dust */}
+      {/* ✨ Light Dust */}
       <div className="light-dust">
         {lightDust.map((item, i) => (
           <span
@@ -62,7 +67,7 @@ export default function ProposalSite({ content }) {
         ))}
       </div>
 
-      {/* 💕 Heart rain */}
+      {/* 💕 Heart Rain */}
       <div className="heart-rain">
         {Array.from({ length: 25 }).map((_, i) => (
           <span
@@ -76,7 +81,7 @@ export default function ProposalSite({ content }) {
         ))}
       </div>
 
-      {/* 🌠 Shooting stars */}
+      {/* 🌠 Shooting Stars */}
       <div className="shooting-stars">
         {Array.from({ length: 6 }).map((_, i) => (
           <span
@@ -91,25 +96,12 @@ export default function ProposalSite({ content }) {
         ))}
       </div>
 
-      {/* ✨ Fireflies */}
-      <div className="fireflies">
-        {Array.from({ length: 18 }).map((_, i) => (
-          <span
-            key={i}
-            style={{
-              top: Math.random() * 100 + "%",
-              left: Math.random() * 100 + "%",
-              animationDuration: 6 + Math.random() * 10 + "s",
-              animationDelay: Math.random() * 8 + "s",
-            }}
-          />
-        ))}
-      </div>
-
       {/* 🧠 Screen Flow */}
       <AnimatePresence mode="wait">
 
-        {currentScreen === "loader" && <CuteLoader key="loader" />}
+        {currentScreen === "loader" && (
+          <CuteLoader key="loader" />
+        )}
 
         {currentScreen === "first" && (
           <FirstScreen
@@ -131,7 +123,7 @@ export default function ProposalSite({ content }) {
         {currentScreen === "question2" && (
           <QuestionScreen
             key="question2"
-            question="Do you like Shyarii ?"
+            question="Do you like Shyarii?"
             onYes={() => nextScreen("balloons")}
           />
         )}
@@ -170,11 +162,23 @@ export default function ProposalSite({ content }) {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1 }}
-            className="min-h-screen flex items-center justify-center px-4"
+            className="min-h-screen"
           >
             <BlanketNightSong
               song={content.final_song}
-              onBack={() => nextScreen("final")}
+              introText={content.intro_text}
+              memories={content.photos.slice(0, 6).map((img, i) => ({
+                image: img,
+                text: content.memory_texts?.[i] || "",
+              }))}
+              finalMessage={content.final_message}
+
+              /* ✅ BACK = FULL RESET TO FIRST SCREEN */
+              onBack={() => {
+                setFadeBgMusic(false)
+                setCurrentScreen("first")
+                setSiteKey(prevKey => prevKey + 1)  // Force remount to reset state
+              }}
             />
           </motion.div>
         )}
@@ -194,9 +198,6 @@ export default function ProposalSite({ content }) {
     </div>
   )
 }
-
-
-
 
 
 

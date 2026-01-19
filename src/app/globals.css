@@ -1,4 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Shantell+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Pacifico&display=swap");
+
 
 @import "tailwindcss";
 
@@ -25,6 +27,7 @@ body {
   color: var(--foreground);
   font-family: 'Shantell Sans', serif;
   user-select: none;
+  
 }
 
 button {
@@ -247,7 +250,7 @@ button {
   position: relative;
   background: radial-gradient(circle at 20% 20%, rgba(255,80,160,0.15), transparent 60%),
               radial-gradient(circle at 80% 30%, rgba(180,90,255,0.18), transparent 60%),
-              radial-gradient(circle at 50% 80%, rgba(255,120,180,0.14), transparent 60%),
+              radial-gradient(circle at 50% 80%, rgba(132, 96, 112, 0.14), transparent 60%),
               linear-gradient(180deg, #04000a, #0b0015, #16001f);
   overflow: hidden;
 }
@@ -259,7 +262,7 @@ button {
   position: absolute;
   width: 520px;
   height: 520px;
-  background: radial-gradient(circle, rgba(255,120,200,0.25), transparent 60%);
+  background: radial-gradient(circle, rgba(243, 241, 242, 0.25), transparent 60%);
   filter: blur(120px);
   animation: floatGlow 20s infinite alternate ease-in-out;
 }
@@ -472,4 +475,29 @@ button {
 .input:focus {
   border-color: #ec4899;
 }
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+
+
 
