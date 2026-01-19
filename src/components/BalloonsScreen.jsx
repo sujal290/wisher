@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { ArrowRight, Heart } from "lucide-react"
+import DecorativeImages from "./DecorativeImages"
 
 
 export default function BalloonsScreen({ onNext }) {
@@ -10,7 +11,11 @@ export default function BalloonsScreen({ onNext }) {
   const balloons = [{ text: "Puriest", color: "fill-pink-500/50" }, { text: "Kindest", color: "fill-rose-500/50" }, { text: "Soul", color: "fill-purple-500/50" }]
 
   const BalloonComponent = ({ balloon }) => (
-    <motion.div
+    <div>
+      {/* 🌸 Decorative floating images (ONLY THIS PAGE) */}
+      <DecorativeImages />
+
+      <motion.div
       className="relative flex items-center justify-center will-change-transform"
       initial={{ y: "100vh", scale: 0.3, opacity: 0 }}
       animate={{
@@ -57,7 +62,8 @@ export default function BalloonsScreen({ onNext }) {
           </motion.div>
         </div>
       </div>
-    </motion.div>
+      </motion.div>
+    </div>
   )
 
   return (
