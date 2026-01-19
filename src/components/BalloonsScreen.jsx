@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { ArrowRight, Heart } from "lucide-react"
 
+
 export default function BalloonsScreen({ onNext }) {
 
   const balloons = [{ text: "Puriest", color: "fill-pink-500/50" }, { text: "Kindest", color: "fill-rose-500/50" }, { text: "Soul", color: "fill-purple-500/50" }]
